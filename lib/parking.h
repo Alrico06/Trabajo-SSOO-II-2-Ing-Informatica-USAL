@@ -1,3 +1,8 @@
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #define NEGRO    0
 #define ROJO     1
 #define VERDE    2
@@ -11,13 +16,6 @@
 #define SIGUIENTE_AJUSTE 1
 #define MEJOR_AJUSTE 2
 #define PEOR_AJUSTE 3 
-
-
-
-
-
-
-
 
 typedef int HCoche;
 
