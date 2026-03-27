@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
 
 #define NEGRO    0
 #define ROJO     1
@@ -59,3 +61,7 @@ int PARKING_isAceraOcupada(int algoritmo,int pos);
 
 int PARKING_getTamaNoMemoriaCompartida();
 int PARKING_getNSemAforos();
+
+
+/*Prototipos ajenos a la libreria*/
+void manejador_senales(int sig);

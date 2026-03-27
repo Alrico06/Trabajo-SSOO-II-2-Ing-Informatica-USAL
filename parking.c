@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[]){
 
-    /*Comienzo de validacion de argumentos*/
+    /*----------Comienzo de validacion de argumentos----------*/
 
     int retardo = -1;
     int num_choferes = -1;
@@ -108,9 +108,42 @@ int main(int argc, char *argv[]){
         printf("[DEBUG] Argumentos introducidos: %s %s %s %s\n",argv[1],argv[2],argv[3],argv[4]);
     }
 
-    /*Fin de la validacion de argumentos*/
+    /*----------Fin de la validacion de argumentos----------*/
 
+    /*----------Comienzo de los manejadores de señales-----------*/
+
+    struct sigaction sa;
+
+    sa.sa_handler = manejador_senales;   
+    sigemptyset(&sa.sa_mask);        
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGALRM, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    /*----------Fin de los manejadores de señales-----------*/
+
+
+    pause();
     return 0;
+}
+
+
+
+
+void manejador_senales(int sig)
+{
+    switch(sig){
+        case SIGTERM:
+        case SIGINT:
+            fprintf(stderr, "\nHe recibido la señal(SIGINT)\n");
+            exit(0);
+            break;
+        case SIGALRM:
+            fprintf(stderr, "\nHe recibido la señal(SIGALRM)\n");
+            break;
+        }
 }
 
 /* Detalles para evitar fallo en encina
