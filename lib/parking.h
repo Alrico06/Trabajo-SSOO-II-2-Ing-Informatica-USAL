@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
+#include <sys/msg.h>
+
 
 #define NEGRO    0
 #define ROJO     1
@@ -65,3 +71,21 @@ int PARKING_getNSemAforos();
 
 /*Prototipos ajenos a la libreria*/
 void manejador_senales(int sig);
+
+union semun {
+    int val;
+    struct semid_ds *buf;
+    unsigned short *array;
+};
+
+int semid;
+
+union semun arg;
+
+    int shmid;
+    char *zona_base;      /* Puntero al inicio de toda la zona */
+    char *mi_zona;        /* Puntero al inicio de MI zona */
+    int total_bytes;
+    int mi_offset;
+
+        int buzid;

@@ -1,5 +1,15 @@
 #include "lib/parking.h"
 
+//Temporal
+
+int llegada_primer_ajuste(HCoche hc)  { return -2; }
+int llegada_siguiente_ajuste(HCoche hc) { return -2; }
+int llegada_mejor_ajuste(HCoche hc)   { return -2; }
+int llegada_peor_ajuste(HCoche hc)    { return -2; }
+
+//Fin temporal
+
+
 int main(int argc, char *argv[]){
 
     /*----------Comienzo de validacion de argumentos----------*/
@@ -124,8 +134,66 @@ int main(int argc, char *argv[]){
 
     /*----------Fin de los manejadores de señales-----------*/
 
+    /*----------Creacion de recursos IPC----------*/
 
-    pause();
+    int semaforosLibreria = PARKING_getNSemAforos();
+    int memoriaLibreria = PARKING_getTamaNoMemoriaCompartida();
+
+    //Semaforos
+
+    semid = semget(IPC_PRIVATE, semaforosLibreria, IPC_CREAT | 0600);
+    if (semid == -1) {
+        fprintf(stderr,"Error creando semáforos");
+        exit(1);
+    }
+    if (debug)
+    fprintf(stderr, "[DEBUG] Array de %d semáforos creado, id=%d\n", semaforosLibreria, semid);
+
+    //Memoria compartida
+
+    shmid = shmget(IPC_PRIVATE, memoriaLibreria, IPC_CREAT | 0600);
+    if (shmid == -1) {
+        fprintf(stderr,"Error creando memoria compartida");
+        exit(1);
+    }
+    if (debug)
+    fprintf(stderr, "[DEBUG] Memoria creada, id=%d\n", shmid);
+
+    zona_base = (char *)shmat(shmid, NULL, 0);
+    if (zona_base == (char *)-1) {
+        fprintf(stderr,"Error adjuntando memoria");
+        shmctl(shmid, IPC_RMID, NULL);
+        exit(1);
+    }
+    if (debug)
+    fprintf(stderr, "[DEBUG] Zona adjuntada en %p\n", zona_base);
+
+    //Buzon
+
+    buzid = msgget(IPC_PRIVATE, IPC_CREAT | 0600);
+    if (buzid == -1) {
+        fprintf(stderr,"Error creando buzón");
+        exit(1);
+    }
+    if (debug)
+    fprintf(stderr, "[DEBUG] Buzón creado, id=%d\n", buzid);
+
+    /*----------Fin de creacion de recursos IPC----------*/
+
+
+    /*----------Invocacion a PARKING_inicio----------*/
+    TIPO_FUNCION_LLEGADA f_llegadas[4];
+
+    f_llegadas[0] = llegada_primer_ajuste;
+    f_llegadas[1] = llegada_siguiente_ajuste;
+    f_llegadas[2] = llegada_mejor_ajuste;
+    f_llegadas[3] = llegada_peor_ajuste;
+
+    int resul = PARKING_inicio(retardo, f_llegadas, semid,  buzid,  shmid,  debug);
+
+    printf("%d",resul);
+
+    /*----------Fin de la invocacion a PARKING_inicio----------*/
     return 0;
 }
 
@@ -138,6 +206,10 @@ void manejador_senales(int sig)
         case SIGTERM:
         case SIGINT:
             fprintf(stderr, "\nHe recibido la señal(SIGINT)\n");
+            semctl(semid, 0, IPC_RMID);
+            shmdt(zona_base);                   /* Desadjuntar */
+            shmctl(shmid, IPC_RMID, NULL);      /* Eliminar */
+            msgctl(buzid, IPC_RMID, NULL);
             exit(0);
             break;
         case SIGALRM:
@@ -150,4 +222,3 @@ void manejador_senales(int sig)
 *valor de los semaforos en estructura
 *Memoria multipla de 4 
  */
-
