@@ -16,7 +16,7 @@ int main(int argc, char *argv[]){
 
     int retardo = -1;
     int num_choferes = -1;
-    int debug = 0;
+    debug = 0;
     int prioridad = 0;
 
     if (argc < 3 || argc > 5)
@@ -31,11 +31,11 @@ int main(int argc, char *argv[]){
 
         
         if(atoi(argv[1])<0){
-            fprintf(stderr,"Argumentos invalidos (Retardo no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (Retardo no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }
         else if (atoi(argv[2]) <= 0){
-            fprintf(stderr,"Argumentos invalidos (num_choferes no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (num_choferes no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }
 
@@ -49,14 +49,14 @@ int main(int argc, char *argv[]){
     if(argc==4){
 
         if(atoi(argv[1])<0){
-            fprintf(stderr,"Argumentos invalidos (Retardo no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (Retardo no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }
         else if (atoi(argv[2]) <= 0){
-            fprintf(stderr,"Argumentos invalidos (num_choferes no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (num_choferes no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }else if(strcmp(argv[3],"D")!=0 && strcmp(argv[3],"PA")!=0 && strcmp(argv[3],"PD")!=0){
-            fprintf(stderr,"Argumentos invalidos, recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos, recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }
         retardo = atoi(argv[1]);
@@ -80,24 +80,24 @@ int main(int argc, char *argv[]){
     if(argc==5){
 
         if(atoi(argv[1])<0){
-            fprintf(stderr,"Argumentos invalidos (Retardo no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (Retardo no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }
         else if (atoi(argv[2]) <= 0){
-            fprintf(stderr,"Argumentos invalidos (num_choferes no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (num_choferes no valido), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }else if(strcmp(argv[3],"D")!=0 && strcmp(argv[3],"PA")!=0 && strcmp(argv[3],"PD")!=0){
-            fprintf(stderr,"Argumentos invalidos, recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos, recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }else if(strcmp(argv[4],"D")!=0 && strcmp(argv[4],"PA")!=0 && strcmp(argv[4],"PD")!=0){
-            fprintf(stderr,"Argumentos invalidos, recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos, recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }else if(strcmp(argv[4],"PD")==0 && strcmp(argv[3],"PA")==0){
-            fprintf(stderr,"Argumentos invalidos (Escoga solo un modo de prioridad PA/PD), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (Escoga solo un modo de prioridad PA/PD), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }
         else if(strcmp(argv[3],"PD")==0 && strcmp(argv[4],"PA")==0){
-            fprintf(stderr,"Argumentos invalidos (Escoga solo un modo de prioridad PA/PD), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n",argc-1);
+            fprintf(stderr,"Argumentos invalidos (Escoga solo un modo de prioridad PA/PD), recuerde: <retardo> <num_choferes> [D] [PA|PD]\n");
             return -2;
         }
 
@@ -129,7 +129,6 @@ int main(int argc, char *argv[]){
     sa.sa_flags = SA_RESTART;
 
     sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGALRM, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
 
     /*----------Fin de los manejadores de señales-----------*/
@@ -138,45 +137,72 @@ int main(int argc, char *argv[]){
 
     int semaforosLibreria = PARKING_getNSemAforos();
     int memoriaLibreria = PARKING_getTamaNoMemoriaCompartida();
+    int memoriaTotal = ALINEAR_A_4(memoriaLibreria + MI_MEMORIA);
 
     //Semaforos
 
-    semid = semget(IPC_PRIVATE, semaforosLibreria, IPC_CREAT | 0600);
+    semid = semget(IPC_PRIVATE, semaforosLibreria+MIS_SEMAFOROS, IPC_CREAT | 0600);
     if (semid == -1) {
-        fprintf(stderr,"Error creando semáforos");
+        fprintf(stderr,"[PADRE] Error creando semáforos\n");
         exit(1);
     }
     if (debug)
-    fprintf(stderr, "[DEBUG] Array de %d semáforos creado, id=%d\n", semaforosLibreria, semid);
+    fprintf(stderr, "[DEBUG] [PADRE] Array de %d semáforos creado, id=%d\n", semaforosLibreria+MIS_SEMAFOROS, semid);
+    
+    mis_semaforos = semaforosLibreria;
+    if (debug)
+    fprintf(stderr, "[DEBUG] [PADRE] Zona ajena a la libreria en indice %d\n", mis_semaforos);
+    
+    // Memoria compartida
 
-    //Memoria compartida
-
-    shmid = shmget(IPC_PRIVATE, memoriaLibreria, IPC_CREAT | 0600);
+    shmid = shmget(IPC_PRIVATE, memoriaTotal, IPC_CREAT | 0600);
     if (shmid == -1) {
-        fprintf(stderr,"Error creando memoria compartida");
+        fprintf(stderr,"[PADRE] Error creando memoria compartida\n");
+        if (semctl(semid, 0, IPC_RMID) != 0)
+            fprintf(stderr, "[PADRE] Error liberando semaforos\n");
+        if (debug)
+            fprintf(stderr, "[PADRE] [DEBUG] Recursos liberados, saliendo....\n");
         exit(1);
     }
     if (debug)
-    fprintf(stderr, "[DEBUG] Memoria creada, id=%d\n", shmid);
+    fprintf(stderr, "[DEBUG] [PADRE] Memoria creada, id=%d\n", shmid);
 
     zona_base = (char *)shmat(shmid, NULL, 0);
     if (zona_base == (char *)-1) {
-        fprintf(stderr,"Error adjuntando memoria");
-        shmctl(shmid, IPC_RMID, NULL);
+        fprintf(stderr,"[PADRE] Error adjuntando memoria\n");
+        if (shmctl(shmid, IPC_RMID, NULL) != 0)
+            fprintf(stderr, "[PADRE] Error liberando memoria compartida\n");
+        if (semctl(semid, 0, IPC_RMID) != 0)
+            fprintf(stderr, "[PADRE] Error liberando semaforos\n");
+        if (debug)
+            fprintf(stderr, "[PADRE] [DEBUG] Recursos liberados, saliendo....\n");
         exit(1);
     }
     if (debug)
-    fprintf(stderr, "[DEBUG] Zona adjuntada en %p\n", zona_base);
+    fprintf(stderr, "[DEBUG] [PADRE] Zona adjuntada en %p\n", zona_base);
+    mi_zona = zona_base + memoriaLibreria;
+    if (debug)
+    fprintf(stderr, "[DEBUG] [PADRE] Zona ajena a la libreria en %p\n",mi_zona);
+
+    memset(zona_base, 0, memoriaTotal);
 
     //Buzon
 
     buzid = msgget(IPC_PRIVATE, IPC_CREAT | 0600);
     if (buzid == -1) {
-        fprintf(stderr,"Error creando buzón");
+        fprintf(stderr,"[PADRE] Error creando buzón\n");
+        if(shmdt(zona_base)!=0)
+            fprintf(stderr, "[PADRE] Error desadjuntando memoria compartida\n");
+        if (shmctl(shmid, IPC_RMID, NULL) != 0)
+            fprintf(stderr, "[PADRE] Error liberando memoria compartida\n");
+        if (semctl(semid, 0, IPC_RMID) != 0)
+            fprintf(stderr, "[PADRE] Error liberando semaforos\n");
+        if (debug)
+            fprintf(stderr, "[PADRE] [DEBUG] Recursos liberados, saliendo....\n");
         exit(1);
     }
     if (debug)
-    fprintf(stderr, "[DEBUG] Buzón creado, id=%d\n", buzid);
+    fprintf(stderr, "[DEBUG] [PADRE] Buzón creado, id=%d\n", buzid);
 
     /*----------Fin de creacion de recursos IPC----------*/
 
@@ -188,32 +214,88 @@ int main(int argc, char *argv[]){
     f_llegadas[1] = llegada_siguiente_ajuste;
     f_llegadas[2] = llegada_mejor_ajuste;
     f_llegadas[3] = llegada_peor_ajuste;
+    
+    if (PARKING_inicio(retardo, f_llegadas, semid, buzid, shmid, debug) == -1) {
+        fprintf(stderr, "[PADRE] Error en PARKING_inicio\n");
+        manejador_senales(0);
+    }
 
-    int resul = PARKING_inicio(retardo, f_llegadas, semid,  buzid,  shmid,  debug);
-
-    printf("%d",resul);
 
     /*----------Fin de la invocacion a PARKING_inicio----------*/
-    return 0;
+
+    /*----------Creacion del proceso temporizador----------*/
+
+    pid_t pid_temp = fork();
+
+    if (pid_temp == -1) {                                                                                                                                                                                                    
+        fprintf(stderr, "[PADRE] Error en fork del temporizador\n");
+        manejador_senales(0);
+    }   
+    
+    if (pid_temp==0){
+        if(debug)
+        fprintf(stderr,"[P.TEMPORIZADOR] [PID: %d] [DEBUG] Proceso temporizador creado\n", getpid());
+
+        //Registro de la manejadora
+
+        struct sigaction sa;
+
+        sa.sa_handler = manejador_senales_temp;   
+        sigemptyset(&sa.sa_mask); 
+        sa.sa_flags = 0;       
+
+        signal(SIGINT, SIG_IGN);
+        signal(SIGTERM, SIG_IGN); 
+        sigaction(SIGALRM, &sa, NULL);
+
+        //Colocamos alarma y dormimos
+
+        alarm(TIEMPO_TEMPORIZADOR);
+        pause();
+    }
+    /*----------Fin de la creacion del proceso temporizador----------*/
+    else
+    {
+        PARKING_simulaciOn();
+        waitpid(pid_temp, NULL, 0);
+        manejador_senales(0);
+    }
 }
 
-
-
+void manejador_senales_temp(int sig)
+{
+    switch(sig){
+        case SIGALRM:
+            if(debug)
+                fprintf(stderr, "\n[P.TEMPORIZADOR] [PID: %d] [DEBUG] He recibido la señal SIGALRM\n",getpid());
+            PARKING_fin(1);
+            break;
+        }
+}
 
 void manejador_senales(int sig)
 {
     switch(sig){
         case SIGTERM:
         case SIGINT:
-            fprintf(stderr, "\nHe recibido la señal(SIGINT)\n");
-            semctl(semid, 0, IPC_RMID);
-            shmdt(zona_base);                   /* Desadjuntar */
-            shmctl(shmid, IPC_RMID, NULL);      /* Eliminar */
-            msgctl(buzid, IPC_RMID, NULL);
+        case 0:
+            if (debug){
+            if (sig == SIGINT)
+                fprintf(stderr, "\n[PADRE] [DEBUG] He recibido la señal SIGINT\n");
+            if(sig==SIGTERM)
+                fprintf(stderr, "\n[PADRE] [DEBUG] He recibido la señal SIGTERM\n");
+            if(sig==0)
+                fprintf(stderr, "\n[PADRE] [DEBUG] Programa terminado\n");
+            }
+            if(shmdt(zona_base)!=0)
+                fprintf(stderr, "[PADRE] Error desadjuntando memoria compartida\n");
+            if (shmctl(shmid, IPC_RMID, NULL) != 0)
+                fprintf(stderr, "[PADRE] Error liberando memoria compartida\n");
+            if (semctl(semid, 0, IPC_RMID) != 0)
+                fprintf(stderr, "[PADRE] Error liberando semaforos\n");
+            if (msgctl(buzid, IPC_RMID, NULL)!=0)
+                fprintf(stderr, "[PADRE] Error liberando buzon\n");
             exit(0);
-            break;
-        case SIGALRM:
-            fprintf(stderr, "\nHe recibido la señal(SIGALRM)\n");
             break;
         }
 }

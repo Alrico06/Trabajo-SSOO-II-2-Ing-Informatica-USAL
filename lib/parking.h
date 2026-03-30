@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,6 +8,8 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/msg.h>
+#include <sys/wait.h>
+
 
 
 #define NEGRO    0
@@ -70,7 +71,14 @@ int PARKING_getNSemAforos();
 
 
 /*Prototipos ajenos a la libreria*/
+
+#define MIS_SEMAFOROS 0
+#define MI_MEMORIA 0
+#define ALINEAR_A_4(x)  (((x) + 3) & ~3)
+#define TIEMPO_TEMPORIZADOR 5 //30
+
 void manejador_senales(int sig);
+void manejador_senales_temp(int sig);
 
 union semun {
     int val;
@@ -82,10 +90,9 @@ int semid;
 
 union semun arg;
 
-    int shmid;
-    char *zona_base;      /* Puntero al inicio de toda la zona */
-    char *mi_zona;        /* Puntero al inicio de MI zona */
-    int total_bytes;
-    int mi_offset;
-
-        int buzid;
+int shmid;
+char *zona_base;      /* Puntero al inicio de toda la zona */
+char *mi_zona;        /* Puntero al inicio de MI zona */
+int buzid;
+int debug;
+int mis_semaforos;
